@@ -211,7 +211,7 @@ def searchSorted(lookup, sample_array):
 
    
 
-def preProcessing(power_curve, n_turbs):
+def preProcessing(power_curve):
     """
     -**-THIS FUNCTION SHOULD NOT BE MODIFIED-**-
     
@@ -239,7 +239,7 @@ def preProcessing(power_curve, n_turbs):
                             values for all speed instances. 
     """
     # number of turbines
-    # n_turbs       =   50
+    n_turbs       =   50
     
     # direction 'slices' in degrees
     slices_drct   = np.roll(np.arange(10, 361, 10, dtype=np.float32), 1)
@@ -327,7 +327,7 @@ def getAEP(turb_rad, turb_coords, power_curve, wind_inst_freq,
     """
     # number of turbines
     n_turbs        =   turb_coords.shape[0]
-    # assert n_turbs ==  50, "Error! Number of turbines is not 50."
+    assert n_turbs ==  50, "Error! Number of turbines is not 50."
     
     # Prepare the rotated coordinates wrt the wind direction i.e downwind(x) & crosswind(y) 
     # coordinates wrt to the wind direction for each direction in wind_instances array
@@ -443,17 +443,19 @@ def checkConstraints(turb_coords, turb_diam):
     
     # print messages
     if  peri_constr_viol  == True  and prox_constr_viol == True:
-          print('Somewhere both perimeter constraint and proximity constraint are violated\n')
-          exit()
+        # print('Somewhere both perimeter constraint and proximity constraint are violated\n')
+        return(0)
     elif peri_constr_viol == True  and prox_constr_viol == False:
-          print('Somewhere perimeter constraint is violated\n')
-          exit()
+        # print('Somewhere perimeter constraint is violated\n')
+        return(0)
     elif peri_constr_viol == False and prox_constr_viol == True:
-          print('Somewhere proximity constraint is violated\n')
-          exit()
-    else: print('Both perimeter and proximity constraints are satisfied !!\n')
+        # print('Somewhere proximity constraint is violated\n')
+        return(0)
+    else: 
+        # print('Both perimeter and proximity constraints are satisfied !!\n')
+        return(1)
         
-    return()
+    return(1)
 
 if __name__ == "__main__":
 
@@ -475,23 +477,19 @@ if __name__ == "__main__":
     turb_rad       =  turb_diam/2 
     
     # Turbine x,y coordinates
-    turb_coords    =  getTurbLoc(r'./Shell_Hackathon Dataset/turbine_loc_test_2.csv')
+    turb_coords   =  getTurbLoc(r'..\Shell_Hackathon Dataset\turbine_loc_test.csv')
     
     # Load the power curve
-    power_curve    =  loadPowerCurve('./Shell_Hackathon Dataset/power_curve.csv')
+    power_curve   =  loadPowerCurve('..\Shell_Hackathon Dataset\power_curve.csv')
     
     # Pass wind data csv file location to function binWindResourceData.
     # Retrieve probabilities of wind instance occurence.
-    # wind_inst_freq =  binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
-    wind_inst_freq =  binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
+    wind_inst_freq =  binWindResourceData(r'..\Shell_Hackathon Dataset\Wind Data\wind_data_2007.csv')   
     
     # Doing preprocessing to avoid the same repeating calculations. Record 
     # the required data for calculations. Do that once. Data are set up (shaped)
     # to assist vectorization. Used later in function totalAEP.
-    n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t = preProcessing(power_curve, turb_coords.shape[0])
-
-
-    
+    n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t = preProcessing(power_curve)
     
     # check if there is any constraint is violated before we do anything. Comment 
     # out the function call to checkConstraints below if you desire. Note that 

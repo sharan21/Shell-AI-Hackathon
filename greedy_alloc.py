@@ -41,8 +41,6 @@ def checkConstraintsNew(turb_coords, turb_diam):
 
 def save_state(n_turbines, coords):
 
-    
-
     saved_state = {"n_turbines": n_turbines, "coords": coords}
     save_path = open('./saved_states/{}'.format(n_turbines), 'wb') 
     pickle.dump(saved_state, save_path)
