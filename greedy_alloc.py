@@ -61,7 +61,6 @@ def greedy_alloc_from_start():
     
     wind_inst_freq = binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
 
-
     # add turbines in 4 corners
     coords.append([50,50])
     coords.append([3950,50])
