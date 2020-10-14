@@ -41,6 +41,8 @@ def checkConstraintsNew(turb_coords, turb_diam):
 
 def save_state(n_turbines, coords):
 
+    
+
     saved_state = {"n_turbines": n_turbines, "coords": coords}
     save_path = open('./saved_states/{}'.format(n_turbines), 'wb') 
     pickle.dump(saved_state, save_path)
@@ -54,16 +56,13 @@ def load_state(state_name):
 
 def greedy_alloc_from_start():
 
-    # turb_coords = getTurbLoc(r'./Shell_Hackathon Dataset/turbine_loc_test_2.csv')
-    power_curve = loadPowerCurve('./Shell_Hackathon Dataset/power_curve.csv')
-    wind_inst_freq = binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
-    
-
-    coords = []
-    turb_diam = 50
-    turb_diam = turb_specs['Dia (m)']
-    turb_rad = turb_diam/2 
     step = 50
+    coords = []
+
+    # turb_coords = getTurbLoc(r'./Shell_Hackathon Dataset/turbine_loc_test_2.csv')
+    
+    wind_inst_freq = binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
+
 
     # add turbines in 4 corners
     coords.append([50,50])
@@ -113,6 +112,8 @@ def greedy_alloc_from_start():
 
 if __name__ == "__main__":
 
+    
+
     turb_specs    =  {   
                         'Name': 'Anon Name',
                         'Vendor': 'Anon Vendor',
@@ -126,7 +127,23 @@ if __name__ == "__main__":
                         'Rated Power (MW)': 3
                     }
 
-    greedy_alloc_from_start()
+    turb_diam = 50
+    turb_diam = turb_specs['Dia (m)']
+    turb_rad = turb_diam/2 
+    
+
+    # greedy_alloc_from_start()
+
+    power_curve = loadPowerCurve('./Shell_Hackathon Dataset/power_curve.csv')
+    wind_inst_freq = binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
+
+    test = load_state("50")
+    coords = test["coords"]
+    n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t = preProcessing(power_curve, np.array(coords).shape[0])
+    pow_here = getAEP(turb_rad, np.array(coords), power_curve, wind_inst_freq, n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t) 
+    print(pow_here)
+
+    # pprint(test)
 
 
 
