@@ -48,9 +48,7 @@ def create_model():
     return(model)
 
 
-
 def train_model(pathtojson, pathtoh5):
-
     
     trained_model = create_model()
 
@@ -113,7 +111,6 @@ def load_model(pathtojson, pathtoh5):
     return loaded_model
 
 
-
 def load_and_predict(pathtojson, pathtoh5, data):
 
     print("using model: {}".format(pathtojson))
@@ -148,7 +145,6 @@ def load_and_predict(pathtojson, pathtoh5, data):
 
 if __name__ == '__main__':
 
-
     x_train, y_train, x_test, y_test = get_final_data()
 
     print(x_train.shape)
@@ -156,10 +152,6 @@ if __name__ == '__main__':
     print(x_test.shape)
     print(y_test.shape)
 
-    # exit(0)
-    
-    # y_train = to_categorical(y_train)
-    # y_test = to_categorical(y_test)
 
     path_to_json = './models/average10.json'
     path_to_h5 = './models/average10.h5'
@@ -169,9 +161,6 @@ if __name__ == '__main__':
     # loadandpredict('./model.json','./model.h5',data)
 
     model = load_model(path_to_json, path_to_h5)
-
-
-
 
 
 

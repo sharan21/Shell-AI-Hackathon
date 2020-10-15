@@ -183,8 +183,8 @@ def get_final_data(train_ratio = 0.75):
 if __name__ == "__main__":
 
     """ Create Valid and Invalid data, Save to ./datasets """
-    valid_inp, valid_out = generate_valid_data(no_of_instances = 5)
-    invalid_inp, invalid_out = generate_invalid_data(no_of_instances = 5)
+    valid_inp, valid_out = generate_valid_data(no_of_instances = 100)
+    invalid_inp, invalid_out = generate_invalid_data(no_of_instances = 100)
     
     # print(invalid_inp.shape)
     # print(invalid_out[-1])
