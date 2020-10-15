@@ -9,10 +9,11 @@ import os
 from Farm_Evaluator_Vec import getTurbLoc, checkConstraints, preProcessing, getAEP, loadPowerCurve, binWindResourceData
 from tqdm import tqdm
 from helpers import plot_farm_as_scatter
+from Farm_Evaluator_Vec_Mod import getAEPMod, binWindResourceDataMod
 
-path = './Shell_Hackathon Dataset/turbine_loc_test.csv'
+# path = './Shell_Hackathon Dataset/turbine_loc_test.csv'
 power_curve    =  loadPowerCurve('./Shell_Hackathon Dataset/power_curve.csv')
-wind_inst_freq =  binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_data_2007.csv')
+# wind_inst_freq =  binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_test.csv')
 
 def save_data(n_instances, inp, out, is_valid = True):
 
@@ -58,11 +59,22 @@ def generate_invalid_data(no_of_instances, n_turbs = 50):
 
         xy_coords = np.random.uniform(low = 50, high = 3950, size = (n_turbs, 2))
         xy_coords = np.array(xy_coords, dtype=int)
+
+        # create random instance of wind data
+        wind_dir = np.random.uniform(low = 0, high = 365, size = (1, ))
+        wind_dir = [float(int(ele/10)*10) for ele in wind_dir] #floor to multiple of 10
+    
+        wind_speed = np.random.uniform(low = 0, high = 29.9, size = (1, )) 
+
+        inp_here = np.ravel(xy_coords) #(100)
+        inp_here = np.append(xy_coords, [wind_dir, wind_speed]) #(102)
                         
         if(checkConstraints(xy_coords, 100) == 0): #invalid coords
             
-            bm_coords = convert_cartesian_to_bit_map(xy_coords) #(4000,4000)
-            inp.append(bm_coords)
+            # bm_coords = convert_cartesian_to_bit_map(xy_coords) #(4000,4000)
+            # inp.append(bm_coords)
+            inp.append(inp_here)
+
             out.append(0)   
 
 
@@ -82,11 +94,20 @@ def generate_valid_data(no_of_instances, n_turbs = 50):
         xy_coords = []
         test_xy_coords = []
 
+        wind_dir = np.random.uniform(low = 0, high = 365, size = (1, ))
+        wind_dir = [float(int(ele/10)*10) for ele in wind_dir] #floor to multiple of 10
+    
+        wind_speed = np.random.uniform(low = 0, high = 29.9, size = (1, )) 
+        # wind speed < 4 will produce 0 energy
+        # 16 <= wind speed < 26 will produce 1314 energy
+        # 26 <= wind speed < 30  will produce 0 energy
+        # wind speed >= 30  will produce nan energy
+
         while(count < n_turbs): #add sample points one by one making sure constraints not violated
             
             xy_coord = np.random.uniform(low = 50, high = 3950, size = (2, ))
             xy_coord = np.array(xy_coord, dtype=int)
-            
+
             test_xy_coords.append(xy_coord)
                     
             if(checkConstraints(test_xy_coords, 100)):
@@ -95,14 +116,28 @@ def generate_valid_data(no_of_instances, n_turbs = 50):
             else:
                 test_xy_coords.pop() 
 
-    
         xy_coords = np.array(xy_coords) #(50,2)
-        bm_coords = convert_cartesian_to_bit_map(xy_coords) #(4000,4000)
+        inp_here= np.ravel(xy_coords) #(100)
+        inp_here = np.append(xy_coords, [wind_dir, wind_speed]) #(102)
         
-        inp.append(bm_coords)
+        
+        # bm_coords = convert_cartesian_to_bit_map(xy_coords) #(4000,4000)
+        # inp.append(bm_coords)
+        inp.append(inp_here)
 
+        #create df for single wind speed, that runs throughout the day
+        wind_pd = pd.DataFrame({
+                            'date': 'random_date', 
+                            'drct': wind_dir,
+                            'sped': wind_speed
+                            })
+
+        wind_inst_freq = binWindResourceDataMod(wind_pd)
+
+        
         n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t = preProcessing(power_curve)
-        AEP = getAEP(50, xy_coords, power_curve, wind_inst_freq, n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t) 
+        AEP = getAEPMod(50, xy_coords, power_curve, wind_inst_freq, n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t) 
+        
         out.append(AEP)
 
 
@@ -144,13 +179,18 @@ def get_final_data(train_ratio = 0.75):
     return x_train, y_train, x_test, y_test
     
 
-    
 
 if __name__ == "__main__":
 
     """ Create Valid and Invalid data, Save to ./datasets """
-    valid_inp, valid_out = generate_valid_data(no_of_instances = 5)
-    invalid_inp, invalid_out = generate_invalid_data(no_of_instances = 5)
+    # valid_inp, valid_out = generate_valid_data(no_of_instances = 2)
+    invalid_inp, invalid_out = generate_invalid_data(no_of_instances = 100)
+    
+    print(invalid_inp.shape)
+    print(invalid_out[-1])
+
+    exit()
+
     
     
     save_data(len(valid_inp), valid_inp, valid_out, is_valid=True)

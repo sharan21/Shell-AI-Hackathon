@@ -1,3 +1,5 @@
+from pprint import pprint
+
 # -*- coding: utf-8 -*-
 """
 Created on: xxxx
@@ -158,6 +160,7 @@ def binWindResourceData(wind_data_file_name):
     slices_drct   = np.roll(np.arange(10, 361, 10, dtype=np.float32), 1)
     ## slices_drct   = [360, 10.0, 20.0.......340, 350]
     n_slices_drct = slices_drct.shape[0]
+
     
     # speed 'slices'
     slices_sped   = [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 
@@ -180,6 +183,8 @@ def binWindResourceData(wind_data_file_name):
                           & (foo[:,1] <  slices_sped[j+1])]
             
             binned_wind[i,j] = foo.shape[0]  
+    
+
     
     wind_inst_freq   = binned_wind/np.sum(binned_wind)
     wind_inst_freq   = wind_inst_freq.ravel()
@@ -329,6 +334,7 @@ def getAEP(turb_rad, turb_coords, power_curve, wind_inst_freq,
     n_turbs        =   turb_coords.shape[0]
     assert n_turbs ==  50, "Error! Number of turbines is not 50."
     
+    
     # Prepare the rotated coordinates wrt the wind direction i.e downwind(x) & crosswind(y) 
     # coordinates wrt to the wind direction for each direction in wind_instances array
     rotate_coords   =  np.zeros((n_wind_instances, n_turbs, 2), dtype=np.float32)
@@ -392,7 +398,6 @@ def getAEP(turb_rad, turb_coords, power_curve, wind_inst_freq,
     AEP = AEP/1e3
     
     return(AEP)
-    
 
     
 def checkConstraints(turb_coords, turb_diam):
@@ -477,14 +482,15 @@ if __name__ == "__main__":
     turb_rad       =  turb_diam/2 
     
     # Turbine x,y coordinates
-    turb_coords   =  getTurbLoc(r'..\Shell_Hackathon Dataset\turbine_loc_test.csv')
+    turb_coords   =  getTurbLoc(r'./Shell_Hackathon Dataset/turbine_loc_test.csv')
     
     # Load the power curve
-    power_curve   =  loadPowerCurve('..\Shell_Hackathon Dataset\power_curve.csv')
+    power_curve   =  loadPowerCurve('./Shell_Hackathon Dataset/power_curve.csv')
     
     # Pass wind data csv file location to function binWindResourceData.
     # Retrieve probabilities of wind instance occurence.
-    wind_inst_freq =  binWindResourceData(r'..\Shell_Hackathon Dataset\Wind Data\wind_data_2007.csv')   
+    wind_inst_freq =  binWindResourceData(r'./Shell_Hackathon Dataset/wind_data/wind_test.csv')   
+    
     
     # Doing preprocessing to avoid the same repeating calculations. Record 
     # the required data for calculations. Do that once. Data are set up (shaped)
@@ -498,6 +504,5 @@ if __name__ == "__main__":
     checkConstraints(turb_coords, turb_diam)
     
     print('Calculating AEP......')
-    AEP = getAEP(turb_rad, turb_coords, power_curve, wind_inst_freq, 
-                  n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t) 
+    AEP = getAEP(turb_rad, turb_coords, power_curve, wind_inst_freq, n_wind_instances, cos_dir, sin_dir, wind_sped_stacked, C_t) 
     print('Total power produced by the wind farm is: ', "%.12f"%(AEP), 'GWh')
